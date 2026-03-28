@@ -1,0 +1,11 @@
+name: power-failure-demo
+description: "Simula un corte de corriente con batería baja"
+sequence:
+  - delay: 2000
+    action: panel.ac_fail
+  - delay: 10000
+    action: panel.battery_low
+  - delay: 15000
+    action: panel.ac_restore
+  - delay: 2000
+    action: panel.battery_ok

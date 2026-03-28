@@ -1,0 +1,26 @@
+name: zone-alarm-demo
+description: "Demostración de alarma en zona 3 con partición armada"
+initialState:
+  panel:
+    online: true
+    acPower: true
+  partitions:
+    - id: 1
+      armed: true
+      armMode: away
+sequence:
+  - delay: 2000
+    action: zone.open
+    target: 3
+  - delay: 1000
+    action: zone.alarm
+    target: 3
+  - delay: 5000
+    action: zone.restore
+    target: 3
+  - delay: 1000
+    action: zone.close
+    target: 3
+  - delay: 2000
+    action: partition.disarm
+    target: 1

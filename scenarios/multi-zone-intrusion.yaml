@@ -1,0 +1,47 @@
+name: multi-zone-intrusion
+description: "Intrusión en múltiples zonas simultáneas"
+initialState:
+  partitions:
+    - id: 1
+      armed: true
+      armMode: away
+sequence:
+  - delay: 1000
+    action: zone.open
+    target: 1
+  - delay: 200
+    action: zone.alarm
+    target: 1
+  - delay: 500
+    action: zone.open
+    target: 3
+  - delay: 200
+    action: zone.alarm
+    target: 3
+  - delay: 500
+    action: zone.open
+    target: 7
+  - delay: 200
+    action: zone.alarm
+    target: 7
+  - delay: 10000
+    action: partition.disarm
+    target: 1
+  - delay: 1000
+    action: zone.restore
+    target: 1
+  - delay: 100
+    action: zone.close
+    target: 1
+  - delay: 100
+    action: zone.restore
+    target: 3
+  - delay: 100
+    action: zone.close
+    target: 3
+  - delay: 100
+    action: zone.restore
+    target: 7
+  - delay: 100
+    action: zone.close
+    target: 7

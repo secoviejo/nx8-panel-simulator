@@ -1,0 +1,21 @@
+name: normal-operation
+description: "Operación normal: aperturas y cierres de zonas ord"
+sequence:
+  - delay: 1000
+    action: zone.open
+    target: 1
+  - delay: 3000
+    action: zone.close
+    target: 1
+  - delay: 2000
+    action: zone.open
+    target: 7
+  - delay: 5000
+    action: zone.close
+    target: 7
+  - delay: 2000
+    action: zone.open
+    target: 2
+  - delay: 4000
+    action: zone.close
+    target: 2
