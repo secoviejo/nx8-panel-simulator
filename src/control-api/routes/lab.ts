@@ -1,15 +1,13 @@
 import type { FastifyInstance } from 'fastify';
 import type { LabMode } from '../../lab/labMode.js';
-import type { ClientManager } from '../../server/tcp/clientManager.js';
 import type { EventGenerator } from '../../core/events/eventGenerator.js';
 import { delaySchema, jitterSchema, corruptionSchema, silenceSchema, burstSchema } from '../schemas/index.js';
-import { AsciiEncoder } from '../../protocols/nx584/ascii/encoder.js';
 import { sleep } from '../../utils/helpers.js';
 
 export function registerLabRoutes(
     app: FastifyInstance,
     labMode: LabMode,
-    clientManager: ClientManager,
+    _clientManager: unknown,
     eventGen: EventGenerator,
 ): void {
     app.get('/lab', async () => {
@@ -53,7 +51,6 @@ export function registerLabRoutes(
         const body = burstSchema.safeParse(req.body ?? {});
         if (!body.success) return reply.status(400).send({ error: body.error.issues });
 
-        const encoder = new AsciiEncoder();
         const { count, intervalMs } = body.data;
 
         // Ráfaga de eventos aleatorios en background

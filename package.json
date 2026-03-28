@@ -16,13 +16,23 @@
     "lint": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\""
   },
-  "keywords": ["nx8", "networx", "alarm", "simulator", "tcp", "scada", "security"],
+  "keywords": [
+    "nx8",
+    "networx",
+    "alarm",
+    "simulator",
+    "tcp",
+    "scada",
+    "security"
+  ],
   "author": "secoviejo",
   "license": "MIT",
   "engines": {
     "node": ">=22.0.0"
   },
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/static": "^9.0.0",
     "dotenv": "^17.3.1",
     "fastify": "^5.3.3",
     "js-yaml": "^4.1.0",

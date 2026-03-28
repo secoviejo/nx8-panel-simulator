@@ -10,7 +10,6 @@ import { ZoneStateManager } from '../../core/state/zone.js';
 import type { DecodedMessage } from '../../protocols/nx584/types.js';
 import type { ArmMode } from '../../core/state/types.js';
 import { env } from '../../config/env.js';
-import { SIMULATOR_VERSION } from '../../config/defaults.js';
 import { createChildLogger } from '../../observability/logger.js';
 
 const log = createChildLogger('tcp-server');

@@ -1,4 +1,8 @@
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import Fastify from 'fastify';
+import fastifyStatic from '@fastify/static';
+import fastifyCors from '@fastify/cors';
 import { env } from '../config/env.js';
 import { createChildLogger } from '../observability/logger.js';
 import { registerHealthRoutes } from '../observability/health.js';
@@ -24,6 +28,7 @@ import type { LabMode } from '../lab/labMode.js';
 import type { SimMetrics } from '../observability/metrics.js';
 
 const log = createChildLogger('control-api');
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export interface ControlApiDeps {
     panel: PanelStateManager;
@@ -43,6 +48,16 @@ export interface ControlApiDeps {
 export async function createControlApi(deps: ControlApiDeps) {
     const app = Fastify({
         logger: false, // Usamos pino directamente
+    });
+
+    // CORS para desarrollo
+    await app.register(fastifyCors, { origin: true });
+
+    // Servir frontend estático desde /public
+    await app.register(fastifyStatic, {
+        root: join(__dirname, '..', '..', 'public'),
+        prefix: '/',
+        decorateReply: false,
     });
 
     // Health + Readiness
