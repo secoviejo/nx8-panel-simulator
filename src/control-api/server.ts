@@ -14,6 +14,7 @@ import { registerFaultRoutes } from './routes/faults.js';
 import { registerSimRoutes } from './routes/sim.js';
 import { registerScenarioRoutes } from './routes/scenarios.js';
 import { registerLabRoutes } from './routes/lab.js';
+import { registerSerialRoutes } from './routes/serial.js';
 import type { PanelStateManager } from '../core/state/panel.js';
 import type { PartitionStateManager } from '../core/state/partition.js';
 import type { ZoneStateManager } from '../core/state/zone.js';
@@ -79,6 +80,7 @@ export async function createControlApi(deps: ControlApiDeps) {
     registerSimRoutes(app, deps.panel, deps.partitions, deps.zones, deps.eventHistory, deps.eventBus, deps.clientManager, deps.tcpServer, deps.broadcaster);
     registerScenarioRoutes(app, deps.scenarioRunner);
     registerLabRoutes(app, deps.labMode, deps.clientManager, deps.eventGenerator);
+    registerSerialRoutes(app, deps.serialServer);
 
     return app;
 }

@@ -29,7 +29,7 @@ export class SerialBroadcaster {
         this.enabled = enabled;
 
         this.listener = (payload: EventBusPayload) => {
-            if (!this.enabled || !this.serialServer.isRunning()) return;
+            if (!this.enabled) return;
             this.handleEvent(payload);
         };
 

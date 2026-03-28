@@ -15,6 +15,7 @@ let state = {
     events: [],
     scenarios: { available: [], active: null, running: false },
     lastEventId: 0,
+    lastSerialLogId: 0,
     connected: false,
 };
 
@@ -24,9 +25,12 @@ async function api(path, method = 'GET', body = null) {
     try {
         const opts = {
             method,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {},
         };
-        if (body) opts.body = JSON.stringify(body);
+        if (body) {
+            opts.headers['Content-Type'] = 'application/json';
+            opts.body = JSON.stringify(body);
+        }
         const res = await fetch(`${API_BASE}${path}`, opts);
         if (!res.ok && res.status !== 304) throw new Error(`HTTP ${res.status}`);
         if (res.status === 304) return null;
@@ -79,6 +83,52 @@ async function fetchScenarios() {
         const data = await api('/scenarios');
         state.scenarios = data;
         updateScenarios();
+    } catch { /* silently fail */ }
+}
+
+async function fetchSerialConsole() {
+    try {
+        const data = await api(`/serial/console?since=${state.lastSerialLogId}`);
+        if (!data || !data.logs || data.logs.length === 0) return;
+
+        const terminal = document.getElementById('serial-terminal');
+        const isScrolledToBottom = terminal.scrollHeight - terminal.clientHeight <= terminal.scrollTop + 10;
+
+        // Limpiar mensaje "Esperando datos..."
+        if (state.lastSerialLogId === 0) {
+            terminal.innerHTML = '';
+        }
+
+        for (const log of data.logs) {
+            state.lastSerialLogId = Math.max(state.lastSerialLogId, log.id);
+            const div = document.createElement('div');
+            div.className = 'terminal-line';
+            
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'term-time';
+            const timeStr = new Date(log.timestamp).toLocaleTimeString([], { hour12: false });
+            timeSpan.textContent = `[${timeStr}]`;
+            
+            const payloadSpan = document.createElement('span');
+            payloadSpan.className = log.type === 'TX' ? 'term-tx' : 'term-rx';
+            // Representación limpia apuntando al dispositivo
+            payloadSpan.textContent = log.type === 'TX' 
+                ? `TX → CIE-H14 : ${log.payload}` 
+                : `RX ← CIE-H14 : ${log.payload}`;
+
+            div.appendChild(timeSpan);
+            div.appendChild(payloadSpan);
+            terminal.appendChild(div);
+        }
+
+        // Mantener max 200 lineas
+        while (terminal.childNodes.length > 200) {
+            terminal.removeChild(terminal.firstChild);
+        }
+
+        if (isScrolledToBottom) {
+            terminal.scrollTop = terminal.scrollHeight;
+        }
     } catch { /* silently fail */ }
 }
 
@@ -479,7 +529,14 @@ function setupEventListeners() {
             e.preventDefault();
             fetchPanelState();
             fetchEvents();
+            fetchSerialConsole();
         }
+    });
+
+    // Serial Console clear
+    document.getElementById('btn-clear-console')?.addEventListener('click', () => {
+        const terminal = document.getElementById('serial-terminal');
+        if (terminal) terminal.innerHTML = '<div class="terminal-line"><span class="term-time">['+new Date().toLocaleTimeString([], { hour12: false })+']</span> <span class="term-info">Consola limpiada.</span></div>';
     });
 }
 
@@ -491,6 +548,9 @@ function startPolling() {
 
     // Poll de eventos
     setInterval(fetchEvents, EVENT_POLL_INTERVAL);
+
+    // Poll consola RS232
+    setInterval(fetchSerialConsole, EVENT_POLL_INTERVAL);
 
     // Poll de escenarios (menos frecuente)
     setInterval(fetchScenarios, 10000);
@@ -508,6 +568,7 @@ async function init() {
         fetchPanelState(),
         fetchEvents(),
         fetchScenarios(),
+        fetchSerialConsole()
     ]);
 
     // Iniciar polling

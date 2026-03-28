@@ -81,6 +81,16 @@ Si el Solae va enchufado a tu PC (o el programa corre ahí y se enchufa por DB9)
 2. Al iniciar, el simulador capturará \`COM3\`.
 3. Tu CIE-H14 verá tráfico serial fluyendo fluidamente cada vez que modifiques cosas en el dashboard, o bien el CIE podrá pedir \`ps1\` y nuestro Core RS232 le devolverá \`...partition status...\` ASCII.
 
+### 5.1 Consola Visual en el Dashboard
+En la parte inferior del Dashboard encontrarás la **Consola RS232 (Datos de salida al Solae CIE-H14)**. 
+Esta interfaz está pensada principalmente para observar los datos de salida (los eventos que el panel manda físicamente al dispositivo Solae CIE-H14 para que este lo transmita por Ethernet).
+
+Características integradas:
+- Auto-desplazamiento para monitorizar fácilmente el flujo.
+- Distinción visual: **TX** (azul) son los datos que escupimos hacia el CIE-H14, y **RX** (amarillo) si el dispositivo nos contesta.
+- Botón "Limpiar" para despejar la pantalla antes de hacer nuevas pruebas.
+- Capacidad máxima en buffer: 100 tramas (rotativo).
+
 ---
 
 ## 6. Persistencia y Escenarios (Roadmap Opcional)

@@ -11,6 +11,13 @@ import type { ArmMode } from '../../core/state/types.js';
 import { env } from '../../config/env.js';
 import { createChildLogger } from '../../observability/logger.js';
 
+export interface SerialLogEntry {
+    id: number;
+    timestamp: string;
+    type: 'TX' | 'RX';
+    payload: string;
+}
+
 const log = createChildLogger('serial-server');
 
 /**
@@ -23,6 +30,10 @@ export class SerialServer {
     private buffer = '';
     private readonly decoder = new AsciiDecoder();
     private readonly encoder = new AsciiEncoder();
+
+    private consoleLog: SerialLogEntry[] = [];
+    private logIdCounter = 0;
+    private readonly maxLogLines = 100;
 
     constructor(
         private readonly eventGenerator: EventGenerator,
@@ -78,6 +89,9 @@ export class SerialServer {
     }
 
     public write(data: string): void {
+        const cleanPayload = data.replace(/\r?\n?/g, '');
+        this.appendLog('TX', cleanPayload);
+
         if (!this.isOpen || !this.port) return;
         this.port.write(data, 'ascii', (err) => {
             if (err) {
@@ -86,11 +100,29 @@ export class SerialServer {
         });
     }
 
+    public getLogs(sinceId: number = 0): SerialLogEntry[] {
+        return this.consoleLog.filter((l) => l.id > sinceId);
+    }
+
+    private appendLog(type: 'TX' | 'RX', payload: string): void {
+        const id = ++this.logIdCounter;
+        this.consoleLog.push({
+            id,
+            timestamp: new Date().toISOString(),
+            type,
+            payload
+        });
+        if (this.consoleLog.length > this.maxLogLines) {
+            this.consoleLog.shift();
+        }
+    }
+
     public isRunning(): boolean {
         return this.isOpen;
     }
 
     private handleFrame(raw: string): void {
+        this.appendLog('RX', raw.replace(/\r?\n?/g, ''));
         const message = this.decoder.decode(raw);
         if (!message) return;
 
