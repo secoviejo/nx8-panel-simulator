@@ -13,6 +13,10 @@ const envSchema = z.object({
     // Protocolo
     SIM_PROTOCOL: z.enum(['ascii', 'binary']).default('ascii'),
 
+    // Puerto Serie RS232
+    SIM_SERIAL_PORT: z.string().optional(),
+    SIM_SERIAL_BAUDRATE: z.coerce.number().int().min(110).max(115200).default(9600),
+
     // Motor de estados
     SIM_ZONE_COUNT: z.coerce.number().int().min(1).max(192).default(16),
     SIM_PARTITION_COUNT: z.coerce.number().int().min(1).max(8).default(2),

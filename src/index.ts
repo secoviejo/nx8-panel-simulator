@@ -22,6 +22,10 @@ import { ClientManager } from './server/tcp/clientManager.js';
 import { TcpServer } from './server/tcp/tcpServer.js';
 import { Broadcaster } from './server/tcp/broadcaster.js';
 
+// Servidor Serie (RS232)
+import { SerialServer } from './server/serial/serialServer.js';
+import { SerialBroadcaster } from './server/serial/serialBroadcaster.js';
+
 // API de control
 import { startControlApi } from './control-api/server.js';
 
@@ -67,6 +71,10 @@ async function main() {
     const tcpServer = new TcpServer(clientManager, eventGenerator, panel, partitions, zones);
     const broadcaster = new Broadcaster(eventBus, clientManager, panel, partitions, zones, env.SIM_BROADCAST_ENABLED);
 
+    // Serial Server (RS232)
+    const serialServer = new SerialServer(eventGenerator, panel, partitions, zones);
+    const serialBroadcaster = new SerialBroadcaster(eventBus, serialServer, panel, partitions, zones, env.SIM_BROADCAST_ENABLED);
+
     // Escenarios
     const __dirname = dirname(fileURLToPath(import.meta.url));
     const scenariosDir = join(__dirname, '..', 'scenarios');
@@ -77,11 +85,17 @@ async function main() {
     // TCP
     await tcpServer.start(env.SIM_HOST, env.SIM_PORT);
 
+    // Serie
+    if (env.SIM_SERIAL_PORT) {
+        await serialServer.start(env.SIM_SERIAL_PORT, env.SIM_SERIAL_BAUDRATE);
+    }
+
     // API Fastify
     const api = await startControlApi({
         panel, partitions, zones,
         eventGenerator, eventHistory, eventBus,
         clientManager, tcpServer, broadcaster,
+        serialServer,
         scenarioRunner, labMode, metrics,
     });
 
@@ -98,6 +112,7 @@ async function main() {
 
     log.info({
         tcp: `${env.SIM_HOST}:${env.SIM_PORT}`,
+        serial: env.SIM_SERIAL_PORT ? `${env.SIM_SERIAL_PORT} @ ${env.SIM_SERIAL_BAUDRATE}bps` : 'Desactivado',
         api: `${env.SIM_CONTROL_API_HOST}:${env.SIM_CONTROL_API_PORT}`,
         zones: env.SIM_ZONE_COUNT,
         partitions: env.SIM_PARTITION_COUNT,
@@ -113,7 +128,9 @@ async function main() {
 
         scenarioRunner.stop();
         broadcaster.destroy();
+        serialBroadcaster.destroy();
         await tcpServer.stop();
+        await serialServer.stop();
         await api.close();
 
         log.info('Simulador detenido limpiamente');

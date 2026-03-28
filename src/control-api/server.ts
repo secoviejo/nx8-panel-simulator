@@ -23,6 +23,7 @@ import type { SimEventBus } from '../core/events/eventBus.js';
 import type { ClientManager } from '../server/tcp/clientManager.js';
 import type { TcpServer } from '../server/tcp/tcpServer.js';
 import type { Broadcaster } from '../server/tcp/broadcaster.js';
+import type { SerialServer } from '../server/serial/serialServer.js';
 import type { ScenarioRunner } from '../core/scenarios/scenarioRunner.js';
 import type { LabMode } from '../lab/labMode.js';
 import type { SimMetrics } from '../observability/metrics.js';
@@ -40,6 +41,7 @@ export interface ControlApiDeps {
     clientManager: ClientManager;
     tcpServer: TcpServer;
     broadcaster: Broadcaster;
+    serialServer: SerialServer;
     scenarioRunner: ScenarioRunner;
     labMode: LabMode;
     metrics: SimMetrics;
@@ -69,7 +71,7 @@ export async function createControlApi(deps: ControlApiDeps) {
     app.get('/metrics', async () => deps.metrics.getSnapshot());
 
     // Rutas del simulador
-    registerPanelRoutes(app, deps.panel, deps.partitions, deps.zones, deps.clientManager);
+    registerPanelRoutes(app, deps.panel, deps.partitions, deps.zones, deps.clientManager, deps.serialServer);
     registerZoneRoutes(app, deps.zones, deps.eventGenerator);
     registerPartitionRoutes(app, deps.partitions, deps.eventGenerator);
     registerEventsRoutes(app, deps.eventHistory);

@@ -50,7 +50,7 @@ async function fetchPanelState() {
         updatePanelStrip();
         updatePartitions();
         updateZones();
-        updateHeaderStats(data.connections?.tcp_clients || 0);
+        updateHeaderStats(data.connections?.tcp_clients || 0, data.connections?.serial_open || false);
     } catch {
         state.connected = false;
         updateConnectionStatus(false);
@@ -91,8 +91,19 @@ function updateConnectionStatus(connected) {
     text.textContent = connected ? 'Conectado' : 'Desconectado';
 }
 
-function updateHeaderStats(tcpClients) {
+function updateHeaderStats(tcpClients, serialOpen) {
     document.getElementById('tcp-clients').textContent = tcpClients;
+    
+    const serialEl = document.getElementById('serial-status');
+    if (serialEl) {
+        if (serialOpen) {
+            serialEl.textContent = 'En linea';
+            serialEl.style.color = 'var(--green-400)';
+        } else {
+            serialEl.textContent = 'Cerrado';
+            serialEl.style.color = 'var(--text-muted)';
+        }
+    }
 }
 
 function updatePanelStrip() {
