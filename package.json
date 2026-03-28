@@ -1,0 +1,41 @@
+{
+  "name": "nx8-panel-simulator",
+  "version": "0.1.0",
+  "description": "Simulador de central de intrusión NetworX NX-8/NX-8E para laboratorio, desarrollo, testing e integración",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run tests/unit",
+    "test:int": "vitest run tests/integration",
+    "test:coverage": "vitest run --coverage",
+    "lint": "tsc --noEmit",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\""
+  },
+  "keywords": ["nx8", "networx", "alarm", "simulator", "tcp", "scada", "security"],
+  "author": "secoviejo",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "fastify": "^5.3.3",
+    "js-yaml": "^4.1.0",
+    "pino": "^9.9.0",
+    "zod": "^3.25.28"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.15.0",
+    "pino-pretty": "^13.0.0",
+    "prettier": "^3.8.1",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.1"
+  }
+}
